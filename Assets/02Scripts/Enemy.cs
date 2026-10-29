@@ -9,9 +9,12 @@ public class Enemy : MonoBehaviour
     private Transform[] wayPoints;  // 이동 경로 정보
     private int wayPointCount;      // 이동 경로 개수
     private int currentIndex = 0;   // 현재 목표지점 인덱스
+    private EnemySpawner enemySpawner;  // 적의 삭제를 본인이 하지 않고 EnemySpanwer에게 알려서 삭제
 
-    public void Setup(Transform[] wayPoints)
+    public void Setup(EnemySpawner enemySpanwer, Transform[] wayPoints)
     {
+        this.enemySpawner = enemySpanwer;
+
         // 적 이동 경로(WayPoints) 정보 설정
         wayPointCount = wayPoints.Length;
         this.wayPoints = new Transform[wayPointCount];
@@ -41,13 +44,13 @@ public class Enemy : MonoBehaviour
             yield return StartCoroutine(MoveAToB(transform.position, wayPoints[currentIndex].position));
 
             // 다음 이동 위치(WayPoint) 설정    
-            if (currentIndex < wayPointCount -1)
+            if (currentIndex < wayPointCount - 1)
             {
                 currentIndex++;
             }
             else
             {
-                Destroy(gameObject);
+                OnDie();
             }
         }
     }
@@ -57,14 +60,21 @@ public class Enemy : MonoBehaviour
         float percent = 0;
         float moveTime = Vector3.Distance(start, end) * timeOffset;
 
-        while(percent < 1f)
+        while (percent < 1f)
         {
             percent += Time.deltaTime / moveTime;
             transform.position = Vector3.Lerp(start, end, percent);
 
             yield return null;
         }
-        
+
+    }
+
+    public void OnDie()
+    {
+        // EnemySpanwer에서 리스트로 적 정보를 관리하기 때문에 Destory()를 직접하지 않고,
+        // EnemySpanwer에게 본인이 삭제될 떄 필요한 처리를 하도록 DestoryEnemy() 호출
+        enemySpawner.DestroyEnemy(this);
     }
 
 }
