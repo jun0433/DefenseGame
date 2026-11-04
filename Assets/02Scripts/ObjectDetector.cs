@@ -6,6 +6,8 @@ public class ObjectDetector : MonoBehaviour
 {
     [SerializeField]
     private TowerSpawner towerSpawner;
+    [SerializeField]
+    private UIPopupTower uiPopupTower;
 
     private Camera mainCamera;
     private Vector2 screenPoint;
@@ -42,6 +44,11 @@ public class ObjectDetector : MonoBehaviour
             {
                 // 타워를 생성하는 TrySpawnTower() 호출
                 towerSpawner.TrySpawnTower(hit.transform);
+            }
+            // 타워를 선택하면 해당 타워 정보를 출력하는 타워 Popup On
+            else if (hit.transform.CompareTag("Tower"))
+            {
+                uiPopupTower.OnPopup();
             }
         }
     }

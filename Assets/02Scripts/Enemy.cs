@@ -1,15 +1,28 @@
 using UnityEngine;
 using System.Collections;
 
+public enum EnemyDestroyType { Kill = 0, Arrive = 1 };
+
 public class Enemy : MonoBehaviour
 {
     [SerializeField]
+    private Transform hudPoint;
+
+    [SerializeField]
+    private Transform rotator;
+
+    [SerializeField]
     private float timeOffset = 1f;  // 이동시간 = 거리 * timeOffset
+
+    [SerializeField]
+    private int gold = 10;  // 적 사망시 획득 골드
 
     private Transform[] wayPoints;  // 이동 경로 정보
     private int wayPointCount;      // 이동 경로 개수
     private int currentIndex = 0;   // 현재 목표지점 인덱스
     private EnemySpawner enemySpawner;  // 적의 삭제를 본인이 하지 않고 EnemySpanwer에게 알려서 삭제
+
+    public Transform HUDPoint => hudPoint;
 
     public void Setup(EnemySpawner enemySpanwer, Transform[] wayPoints)
     {
@@ -32,8 +45,8 @@ public class Enemy : MonoBehaviour
 
     private void Update()
     {
-        // 적 오브젝트 회전
-        transform.Rotate(Vector3.forward, 360 * Time.deltaTime);
+        // 적 캐릭터를 화면에 출력하는 오브젝트 회전
+        rotator.Rotate(Vector3.forward, 360 * Time.deltaTime);
     }
 
     private IEnumerator Process()
@@ -50,7 +63,10 @@ public class Enemy : MonoBehaviour
             }
             else
             {
-                OnDie();
+                // 목표 지점에 도달해서 사망시 gold 처리 X
+                gold = 0;
+                
+                OnDie(EnemyDestroyType.Arrive);
             }
         }
     }
@@ -70,11 +86,11 @@ public class Enemy : MonoBehaviour
 
     }
 
-    public void OnDie()
+    public void OnDie(EnemyDestroyType type)
     {
         // EnemySpanwer에서 리스트로 적 정보를 관리하기 때문에 Destory()를 직접하지 않고,
         // EnemySpanwer에게 본인이 삭제될 떄 필요한 처리를 하도록 DestoryEnemy() 호출
-        enemySpawner.DestroyEnemy(this);
+        enemySpawner.DestroyEnemy(type, this, gold);
     }
 
 }
