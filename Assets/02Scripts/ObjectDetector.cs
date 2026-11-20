@@ -17,6 +17,14 @@ public class ObjectDetector : MonoBehaviour
         mainCamera = Camera.main;
     }
 
+    public Vector3 GetPointerWolrdPosition()
+    {
+        Vector3 worldPoint = mainCamera.ScreenToWorldPoint(screenPoint);
+        worldPoint.z = 0;
+
+        return worldPoint;
+    }
+
     public void Onpoint(InputAction.CallbackContext context)
     {
         screenPoint = context.ReadValue<Vector2>();

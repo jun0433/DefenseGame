@@ -4,6 +4,7 @@ using UnityEngine;
 public class TowerTemplateSO : ScriptableObject
 {
     public GameObject towerPrefab;  // 타워 생성 프리팹
+    public GameObject followerTowerPrefab;  // 마우스 추적 임시 타워 프리팹
     public Weapon[] weapon; // 레벨별 타워 정보
 
     [System.Serializable]
