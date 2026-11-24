@@ -21,11 +21,18 @@ public class Enemy : MonoBehaviour
     private int wayPointCount;      // 이동 경로 개수
     private int currentIndex = 0;   // 현재 목표지점 인덱스
     private EnemySpawner enemySpawner;  // 적의 삭제를 본인이 하지 않고 EnemySpanwer에게 알려서 삭제
+    private float baseTimeOffset;
 
     public Transform HUDPoint => hudPoint;
+    public float TimeOffset
+    {
+        get => timeOffset;
+        set => timeOffset = Mathf.Min(value, 5.0f); // 타일 한 칸 이동에 최댓값 설정(5초)
+    }
 
     public void Setup(EnemySpawner enemySpanwer, Transform[] wayPoints)
     {
+        baseTimeOffset = timeOffset;
         this.enemySpawner = enemySpanwer;
 
         // 적 이동 경로(WayPoints) 정보 설정
@@ -65,7 +72,7 @@ public class Enemy : MonoBehaviour
             {
                 // 목표 지점에 도달해서 사망시 gold 처리 X
                 gold = 0;
-                
+
                 OnDie(EnemyDestroyType.Arrive);
             }
         }
@@ -84,6 +91,11 @@ public class Enemy : MonoBehaviour
             yield return null;
         }
 
+    }
+    
+    public void ResetTimeOffset()
+    {
+        timeOffset = baseTimeOffset;
     }
 
     public void OnDie(EnemyDestroyType type)

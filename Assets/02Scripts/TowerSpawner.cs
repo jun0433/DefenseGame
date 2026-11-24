@@ -87,7 +87,11 @@ public class TowerSpawner : MonoBehaviour
        var clone = Instantiate(towerTemplate[towerType].towerPrefab, position, Quaternion.identity);
 
         // 타워 무기에 enemySpanwer 정보 전달
-        clone.GetComponent<TowerWeapon>().Setup(enemySpanwer, playerGold, tile);
+        clone.GetComponent<TowerWeapon>().Setup(this, enemySpanwer, playerGold, tile);
+
+        // 새로 배치되는 타워가 버프 타워 주변에 배치될 경우
+        // 버프 효과를 받을 수 있도록 효과 갱신
+        OnBuffAllBuffTowers();
 
         // 임시 타워 삭제
         Destroy(followTowerClone);
@@ -110,5 +114,40 @@ public class TowerSpawner : MonoBehaviour
 
             yield return null;
         }
+    }
+
+    public void OnBuffAllBuffTowers()
+    {
+        GameObject[] towers = GameObject.FindGameObjectsWithTag("Tower");
+
+        for (int i =0; i< towers.Length; ++i)
+        {
+            TowerWeapon weapon = towers[i].GetComponent<TowerWeapon>();
+
+            if(weapon.WeaponType == WeaponType.Buff)
+            {
+                weapon.OnBuffAroundTwoer();
+            }
+        }
+    }
+
+    public void ResetBuff() => StartCoroutine(TryResetBuff());
+
+    private IEnumerator TryResetBuff()
+    {
+        yield return new WaitForEndOfFrame();
+
+        // 현재 맵에 배치된 "Tower" 태그 오브젝트 검색
+        GameObject[] towers = GameObject.FindGameObjectsWithTag("Tower");
+
+        // 타워에 적용되어 있는 버프 초기화
+        for(int i = 0; i < towers.Length; ++i)
+        {
+            towers[i].GetComponent<TowerWeapon>().BuffLevel = 0;
+            towers[i].GetComponent<TowerWeapon>().AddedDamage = 0;
+        }
+
+        // 버프 다시 적용
+        OnBuffAllBuffTowers();
     }
 }
